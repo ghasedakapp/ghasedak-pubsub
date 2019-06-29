@@ -217,7 +217,7 @@ message Subscription {
   PushConfig push_config = 4;
 
 
-  // See <a href="https://cloud.google.com/pubsub/docs/labels"> Creating and
+  // See <a href="https://pubsub.ghasedak.im/pubsub/docs/labels"> Creating and
   // managing labels</a>.
   map<string, string> labels = 5;
 
