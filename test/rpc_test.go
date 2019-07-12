@@ -52,17 +52,21 @@ func TestGrpcGetLastMessage(t *testing.T) {
 
 	topic := fmt.Sprintf("topic-%d", rand.Int31())
 	subscriptionName := fmt.Sprintf("subscription-%d", rand.Int31())
-	textMessage := "salam"
+	textMessage1 := "salam1"
+	textMessage2 := "salam2"
 
-	publishTextMessage(t, ctx, textMessage, topic)
+	publishTextMessage(t, ctx, textMessage1, topic)
 
 	_, err := SubClient.CreateSubscription(ctx, &pb.Subscription{Name: subscriptionName, Topic: topic})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = SubClient.Pull(ctx, &pb.PullRequest{Subscription: subscriptionName})
+	publishTextMessage(t, ctx, textMessage2, topic)
+	r, err := SubClient.Pull(ctx, &pb.PullRequest{Subscription: subscriptionName})
+	assert.Equal(t, string(r.ReceivedMessages[0].Message.Data), textMessage2)
 
+	_, err = SubClient.Pull(ctx, &pb.PullRequest{Subscription: subscriptionName})
 	assert.Equal(t, err.Error(), "rpc error: code = DeadlineExceeded desc = context deadline exceeded")
 }
 
