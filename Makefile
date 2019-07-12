@@ -37,24 +37,34 @@ fmt:
 	@GO111MODULE=on gofmt -w -d cmd/
 	@GO111MODULE=on gofmt -w -d pkg/
 	@GO111MODULE=on gofmt -w -d internal/
+	@GO111MODULE=on gofmt -w -d test/
 
+
+vendor:
+	@echo "Running $@"
+	@GO111MODULE=on go mod vendor
 
 init:
 	@echo "Running $@"
 	@GO111MODULE=on go mod init
 	@GO111MODULE=on go mod vendor
 
+genproto:
+	@echo "Generating protos"
+	@(env bash $(PWD)/scripts/genproto.sh)
 
 run:
 	@echo "Running $@"
 	@GO111MODULE=on go run main.go
 
 
+
 # Builds minio, runs the verifiers then runs the tests.
 check: test
-test: verifiers build
-	@echo "Running unit tests"
-	@GO111MODULE=on CGO_ENABLED=0 go test -tags kqueue ./... 1>/dev/null
+
+test:
+	@echo "Running integration tests"
+	@GO111MODULE=on go test -v -count=1 ./test
 
 verify: build
 	@echo "Verifying build"
@@ -89,3 +99,5 @@ clean:
 	@rm -rvf minio
 	@rm -rvf build
 	@rm -rvf release
+
+.PHONY: test clean vendor

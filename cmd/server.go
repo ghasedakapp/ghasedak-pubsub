@@ -8,11 +8,9 @@ import (
 func init() {
 	pkg.InitConfig("")
 	pkg.InitLog()
-
 }
 
 func Main() {
-
 	rpc.InitGrpc(":5050")
 	pkg.RunAwaitSignal()
 }

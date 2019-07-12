@@ -63,13 +63,13 @@ echo "Generating protos ..."
 for dir in ${DIRS}; do
 	pushd "${dir}"
 
-        protoc -I=".:${GRPC_GATEWAY_ROOT}/third_party/googleapis"  --gogofast_out=plugins=grpc,\
-        Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,\
-        Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,\
-        Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,\
-        Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,\
-        Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types:./src \
-        ./*.proto
+    protoc -I=".:${GRPC_GATEWAY_ROOT}/third_party/googleapis"  --gogofast_out=plugins=grpc,\
+Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types:./src \
+./*.proto
 
 #		protoc --gofast_out=plugins=grpc:./src -I=".:${GRPC_GATEWAY_ROOT}/third_party/googleapis" ./*.proto
 				# shellcheck disable=SC1117

@@ -122,12 +122,9 @@ message Topic {
   // must not start with `"goog"`.
   string name = 1;
 
-  // The token of topic. This token generated when topic created
-  string token = 2;
-
   // See <a href="https://pubsub.ghasedak.im/pubsub/docs/labels"> Creating and
   // managing labels</a>.
-  map<string, string> labels = 3;
+  map<string, string> labels = 2;
 }
 
 message MessageId {
