@@ -6,8 +6,8 @@ postgres:
   port: 5432
 
 pulsar:
-  host:127.0.0.1
-  port:6650
+  host: 127.0.0.1
+  port: 6650
 
 log:
   level: debug

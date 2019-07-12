@@ -5,19 +5,23 @@ import (
 	pb "ghasedak-pubsub/api/proto/src"
 	"ghasedak-pubsub/api/rpc"
 	"ghasedak-pubsub/pkg"
+	"ghasedak-pubsub/pkg/pubsub"
 	"google.golang.org/grpc"
 	"log"
 	"os"
 	"testing"
+	time "time"
 )
 
 var PubClient pb.PublisherClient
 var SubClient pb.SubscriberClient
+var PulsarPS pubsub.PubSub
 
 func setup() {
 	loadConfig()
 	pkg.InitLog()
 	rpc.InitGrpc(":5050")
+	time.Sleep(500 * time.Millisecond)
 	initGrpcClient(":5050")
 }
 

@@ -102,7 +102,7 @@ func loadConf(confPath string) (ConfYaml, error) {
 	conf.Postgres.Host = viper.GetString("grpc.host")
 	conf.Postgres.Port = viper.GetInt32("grpc.port")
 
-	// PubSub
+	// Pulsar
 	conf.Pulsar.Host = viper.GetString("pulsar.host")
 	conf.Pulsar.Port = viper.GetInt32("pulsar.port")
 

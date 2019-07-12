@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"ghasedak-pubsub/pkg"
 	"github.com/apache/pulsar/pulsar-client-go/pulsar"
+	"sync"
 )
 
 type PulsarPubSub struct {
 	client    pulsar.Client
 	consumers map[string]pulsar.Consumer
+	producers map[string]pulsar.Producer
 }
 
 type PulsarMessageId struct {
@@ -31,7 +33,24 @@ func NewPulsar(host string, port int32) PubSub {
 		pkg.Logger.Fatal(err)
 	}
 
-	return &PulsarPubSub{client: client}
+	return &PulsarPubSub{
+		client:    client,
+		consumers: make(map[string]pulsar.Consumer),
+		producers: make(map[string]pulsar.Producer)}
+}
+
+var (
+	once sync.Once
+
+	pulsarPubSub PubSub
+)
+
+func GetPulsar() PubSub {
+	once.Do(func() {
+		pulsarPubSub = NewPulsar(pkg.Conf.Pulsar.Host, pkg.Conf.Pulsar.Port)
+	})
+
+	return pulsarPubSub
 }
 
 //
@@ -49,6 +68,24 @@ func NewPulsar(host string, port int32) PubSub {
 //		return pubSub
 //	}
 //}
+
+func (p *PulsarPubSub) CreateProducer(topic string) error {
+	producer, err := p.client.CreateProducer(pulsar.ProducerOptions{
+		Topic: topic,
+	})
+	p.producers[topic] = producer
+	return err
+}
+
+func (p *PulsarPubSub) Publish(topic string, body []byte) (*MessageId, error) {
+	producer, ok := p.producers[topic]
+	if !ok {
+		return nil, TopicNotFound
+	}
+	ctx := context.Background()
+	err := producer.Send(ctx, pulsar.ProducerMessage{Payload: body})
+	return &MessageId{}, err
+}
 
 func (p *PulsarPubSub) Subscribe(name string, topic string) error {
 	if val, ok := p.consumers[name]; ok {
@@ -90,4 +127,8 @@ func (p *PulsarPubSub) Ack(subscriptionName string, mid MessageId) error {
 	}
 	return nil
 
+}
+
+func (p *PulsarPubSub) Close() error {
+	panic("implement me")
 }
