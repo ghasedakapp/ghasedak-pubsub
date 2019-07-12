@@ -34,16 +34,7 @@ func TestGrpcSubscriber(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = PubClient.CreateTopic(ctx, &pb.Topic{Name: topic})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	msg := &pb.PubSubMessage{Data: []byte(textMessage)}
-	_, err = PubClient.Publish(ctx, &pb.PublishRequest{Topic: topic, Messages: []*pb.PubSubMessage{msg}})
-	if err != nil {
-		t.Fatal(err)
-	}
+	msg := publishTextMessage(t, ctx, textMessage, topic)
 
 	r, err := SubClient.Pull(ctx, &pb.PullRequest{Subscription: subscriptionName})
 	if err != nil {
@@ -52,5 +43,36 @@ func TestGrpcSubscriber(t *testing.T) {
 
 	assert.Equal(t, string(r.ReceivedMessages[0].Message.Data), textMessage)
 	assert.Equal(t, *r.ReceivedMessages[0].Message, *msg)
+
+}
+
+func TestGrpcGetLastMessage(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	topic := fmt.Sprintf("topic-%d", rand.Int31())
+	subscriptionName := fmt.Sprintf("subscription-%d", rand.Int31())
+	textMessage := "salam"
+
+	publishTextMessage(t, ctx, textMessage, topic)
+
+	_, err := SubClient.CreateSubscription(ctx, &pb.Subscription{Name: subscriptionName, Topic: topic})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = SubClient.Pull(ctx, &pb.PullRequest{Subscription: subscriptionName})
+
+	assert.Equal(t, err.Error(), "rpc error: code = DeadlineExceeded desc = context deadline exceeded")
+}
+
+func publishTextMessage(t *testing.T, ctx context.Context, body string, topic string) *pb.PubSubMessage {
+	_, err := PubClient.CreateTopic(ctx, &pb.Topic{Name: topic})
+	msg := &pb.PubSubMessage{Data: []byte(body)}
+	_, err = PubClient.Publish(ctx, &pb.PublishRequest{Topic: topic, Messages: []*pb.PubSubMessage{msg}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return msg
 
 }
