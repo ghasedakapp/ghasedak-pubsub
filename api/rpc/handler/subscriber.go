@@ -1,0 +1,29 @@
+package handler
+
+import (
+	"context"
+	pb "ghasedak-pubsub/api/proto/src"
+	google_protobuf2 "github.com/golang/protobuf/ptypes/empty"
+)
+
+type SubscriberServer struct{}
+
+func (s *SubscriberServer) CreateSubscription(ctx context.Context, req *pb.Subscription) (*pb.Subscription, error) {
+	panic("implement me")
+}
+
+func (s *SubscriberServer) Acknowledge(ctx context.Context, req *pb.AcknowledgeRequest) (*google_protobuf2.Empty, error) {
+	panic("implement me")
+}
+
+func (s *SubscriberServer) Pull(ctx context.Context, req *pb.PullRequest) (*pb.PullResponse, error) {
+	panic("implement me")
+}
+
+func (s *SubscriberServer) StreamingPull(stream pb.Subscriber_StreamingPullServer) error {
+	panic("implement me")
+}
+
+func (s *SubscriberServer) Seek(ctx context.Context, req *pb.SeekRequest) (*pb.SeekResponse, error) {
+	panic("implement me")
+}
