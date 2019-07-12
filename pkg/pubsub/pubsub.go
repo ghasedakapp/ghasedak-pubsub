@@ -11,7 +11,7 @@ var (
 )
 
 type MessageId struct {
-	id []byte
+	ID []byte
 }
 
 type Message struct {

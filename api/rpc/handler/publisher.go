@@ -21,12 +21,12 @@ func (p *PublisherServer) Publish(ctx context.Context, req *pb.PublishRequest) (
 	pulsarClient := pubsub.GetPulsar()
 	var ids []*pb.MessageId
 	for _, m := range req.Messages {
-		id, err := pulsarClient.Publish(req.Topic, m.Data)
+		_, err := pulsarClient.Publish(req.Topic, m.Data)
 		if err != nil {
 			return nil, err
 		}
 
 		ids = append(ids, &pb.MessageId{})
 	}
-	return &pb.PublishResponse{}, nil
+	return &pb.PublishResponse{MessageIds: ids}, nil
 }

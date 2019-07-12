@@ -8,6 +8,7 @@ import (
 	"ghasedak-pubsub/pkg/pubsub"
 	"google.golang.org/grpc"
 	"log"
+	"math/rand"
 	"os"
 	"testing"
 	time "time"
@@ -18,6 +19,7 @@ var SubClient pb.SubscriberClient
 var PulsarPS pubsub.PubSub
 
 func setup() {
+	rand.Seed(time.Now().Unix())
 	loadConfig()
 	pkg.InitLog()
 	rpc.InitGrpc(":5050")

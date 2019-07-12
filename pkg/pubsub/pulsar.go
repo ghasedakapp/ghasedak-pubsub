@@ -120,7 +120,7 @@ func (p *PulsarPubSub) Ack(subscriptionName string, mid MessageId) error {
 		return SubscriptionNotFound
 	}
 
-	id := PulsarMessageId{mid.id}
+	id := PulsarMessageId{mid.ID}
 	err := consumer.AckID(&id)
 	if err != nil {
 		return err
