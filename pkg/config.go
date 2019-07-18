@@ -23,6 +23,10 @@ pulsar:
   host:127.0.0.1
   port:6650
 
+kafka:
+  host:127.0.0.1
+  port:6650
+
 log:
   level: debug
 
@@ -33,6 +37,7 @@ type ConfYaml struct {
 	GRPC     SectionGRPC     `yaml:"grpc"`
 	Postgres SectionPostgres `yaml:"postgres"`
 	Pulsar   SectionPulsar   `yaml:"pulsar"`
+	Kafka    SectionKafka    `yaml:"kafka"`
 	Log      SectionLog      `yaml:"log"`
 }
 
@@ -49,6 +54,12 @@ type SectionPostgres struct {
 
 // SectionPulsar is sub section of config.
 type SectionPulsar struct {
+	Host string `yaml:"host"`
+	Port int32  `yaml:"host"`
+}
+
+// SectionKafka is sub section of config.
+type SectionKafka struct {
 	Host string `yaml:"host"`
 	Port int32  `yaml:"host"`
 }
@@ -105,6 +116,10 @@ func loadConf(confPath string) (ConfYaml, error) {
 	// Pulsar
 	conf.Pulsar.Host = viper.GetString("pulsar.host")
 	conf.Pulsar.Port = viper.GetInt32("pulsar.port")
+
+	// Kafka
+	conf.Kafka.Host = viper.GetString("kafka.host")
+	conf.Kafka.Port = viper.GetInt32("kafka.port")
 
 	// log
 	conf.Log.Level = viper.GetString("log.level")

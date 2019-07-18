@@ -10,8 +10,8 @@ import (
 type SubscriberServer struct{}
 
 func (s *SubscriberServer) CreateSubscription(ctx context.Context, req *pb.Subscription) (*pb.Subscription, error) {
-	pulsarClient := pubsub.GetPulsar()
-	err := pulsarClient.Subscribe(req.Name, req.Topic)
+	client := pubsub.GetKafka()
+	err := client.Subscribe(req.Name, []string{req.Topic})
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (s *SubscriberServer) Acknowledge(ctx context.Context, req *pb.AcknowledgeR
 }
 
 func (s *SubscriberServer) Pull(ctx context.Context, req *pb.PullRequest) (*pb.PullResponse, error) {
-	pulsarClient := pubsub.GetPulsar()
+	pulsarClient := pubsub.GetKafka()
 	r, err := pulsarClient.Receive(req.Subscription)
 	if err != nil {
 		return nil, err

@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/apache/pulsar/pulsar-client-go v0.0.0-20190704150733-6ae9b402ae //version 2.3.2
+	github.com/confluentinc/confluent-kafka-go v1.0.0
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.1
 	github.com/segmentio/kafka-go v0.2.5 // indirect

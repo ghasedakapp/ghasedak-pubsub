@@ -6,7 +6,7 @@ import (
 	"syscall"
 )
 
-func RunAwaitSignal() {
+func Wait() {
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 

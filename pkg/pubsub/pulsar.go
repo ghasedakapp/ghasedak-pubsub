@@ -80,20 +80,20 @@ func (p *PulsarPubSub) CreateProducer(topic string) error {
 func (p *PulsarPubSub) Publish(topic string, body []byte) (*MessageId, error) {
 	producer, ok := p.producers[topic]
 	if !ok {
-		return nil, TopicNotFound
+		return nil, Errors.TopicNotFound
 	}
 	ctx := context.Background()
 	err := producer.Send(ctx, pulsar.ProducerMessage{Payload: body})
 	return &MessageId{}, err
 }
 
-func (p *PulsarPubSub) Subscribe(name string, topic string) error {
+func (p *PulsarPubSub) Subscribe(name string, topic []string) error {
 	if val, ok := p.consumers[name]; ok {
 		_ = val.Close()
 	}
 
 	consumer, err := p.client.Subscribe(pulsar.ConsumerOptions{
-		Topic:            topic,
+		Topic:            topic[0],
 		SubscriptionName: name,
 		Type:             pulsar.Exclusive,
 	})
@@ -104,7 +104,7 @@ func (p *PulsarPubSub) Subscribe(name string, topic string) error {
 func (p *PulsarPubSub) Receive(subscriptionName string) (*Message, error) {
 	consumer, ok := p.consumers[subscriptionName]
 	if !ok {
-		return nil, SubscriptionNotFound
+		return nil, Errors.SubscriptionNotFound
 	}
 
 	msg, err := consumer.Receive(context.Background())
@@ -117,7 +117,7 @@ func (p *PulsarPubSub) Receive(subscriptionName string) (*Message, error) {
 func (p *PulsarPubSub) Ack(subscriptionName string, mid MessageId) error {
 	consumer, ok := p.consumers[subscriptionName]
 	if !ok {
-		return SubscriptionNotFound
+		return Errors.SubscriptionNotFound
 	}
 
 	id := PulsarMessageId{mid.ID}

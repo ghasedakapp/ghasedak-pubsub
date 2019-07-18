@@ -9,7 +9,7 @@ import (
 type PublisherServer struct{}
 
 func (p *PublisherServer) CreateTopic(ctx context.Context, req *pb.Topic) (*pb.Topic, error) {
-	pulsarClient := pubsub.GetPulsar()
+	pulsarClient := pubsub.GetKafka()
 	err := pulsarClient.CreateProducer(req.Name)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func (p *PublisherServer) CreateTopic(ctx context.Context, req *pb.Topic) (*pb.T
 }
 
 func (p *PublisherServer) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
-	pulsarClient := pubsub.GetPulsar()
+	pulsarClient := pubsub.GetKafka()
 	var ids []*pb.MessageId
 	for _, m := range req.Messages {
 		_, err := pulsarClient.Publish(req.Topic, m.Data)

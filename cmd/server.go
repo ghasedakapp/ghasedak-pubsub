@@ -12,5 +12,5 @@ func init() {
 
 func Main() {
 	rpc.InitGrpc(":5050")
-	pkg.RunAwaitSignal()
+	pkg.Wait()
 }

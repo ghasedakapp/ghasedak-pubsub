@@ -11,7 +11,7 @@ import (
 )
 
 func TestCreateTopic(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	r, err := PubClient.CreateTopic(ctx, &pb.Topic{Name: "topic"})
@@ -21,8 +21,17 @@ func TestCreateTopic(t *testing.T) {
 	assert.Equal(t, r.Name, "topic")
 }
 
+func TestPublishMessage(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	topic := fmt.Sprintf("topic-%d", rand.Int31())
+	textMessage := "salam"
+	publishTextMessage(t, ctx, textMessage, topic)
+}
+
 func TestGrpcSubscriber(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	topic := fmt.Sprintf("topic-%d", rand.Int31())
@@ -35,6 +44,9 @@ func TestGrpcSubscriber(t *testing.T) {
 	}
 
 	msg := publishTextMessage(t, ctx, textMessage, topic)
+
+	time.Sleep(1 * time.Second)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second)
 
 	r, err := SubClient.Pull(ctx, &pb.PullRequest{Subscription: subscriptionName})
 	if err != nil {
@@ -72,6 +84,9 @@ func TestGrpcGetLastMessage(t *testing.T) {
 
 func publishTextMessage(t *testing.T, ctx context.Context, body string, topic string) *pb.PubSubMessage {
 	_, err := PubClient.CreateTopic(ctx, &pb.Topic{Name: topic})
+	if err != nil {
+		t.Fatal(err)
+	}
 	msg := &pb.PubSubMessage{Data: []byte(body)}
 	_, err = PubClient.Publish(ctx, &pb.PublishRequest{Topic: topic, Messages: []*pb.PubSubMessage{msg}})
 	if err != nil {
