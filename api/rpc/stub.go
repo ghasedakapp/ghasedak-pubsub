@@ -8,20 +8,27 @@ import (
 	"net"
 )
 
-func InitGrpc(address string) {
-	pkg.Logger.Info("Listening grpc on", address)
-	go startGrpcServer(address)
+type Grpc struct {
 }
 
-func startGrpcServer(address string) {
+func NewGrpc() *Grpc {
+	return &Grpc{}
+}
+
+func (g *Grpc) Initialize(address string) {
+	pkg.GetLogger().Info("Listening grpc on", address)
+	go g.startGrpcServer(address)
+}
+
+func (*Grpc) startGrpcServer(address string) {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
-		pkg.Logger.Fatalf("failed to listen: %v", err)
+		pkg.GetLogger().Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 	pb.RegisterPublisherServer(s, &handler.PublisherServer{})
 	pb.RegisterSubscriberServer(s, &handler.SubscriberServer{})
 	if err := s.Serve(lis); err != nil {
-		pkg.Logger.Fatalf("failed to serve: %v", err)
+		pkg.GetLogger().Fatalf("failed to serve: %v", err)
 	}
 }

@@ -22,32 +22,19 @@ func (pm *PulsarMessageId) Serialize() []byte {
 	return pm.id
 }
 
-func NewPulsar(host string, port int32) PubSub {
-	// Instantiate a PubSub client
-	client, err := pulsar.NewClient(pulsar.ClientOptions{
-
-		URL: fmt.Sprintf("pulsar://%s:%d", host, port),
-	})
-
-	if err != nil {
-		pkg.Logger.Fatal(err)
-	}
-
-	return &PulsarPubSub{
-		client:    client,
-		consumers: make(map[string]pulsar.Consumer),
-		producers: make(map[string]pulsar.Producer)}
+func NewPulsar() *PulsarPubSub {
+	return &PulsarPubSub{}
 }
 
 var (
 	once sync.Once
 
-	pulsarPubSub PubSub
+	pulsarPubSub *PulsarPubSub
 )
 
-func GetPulsar() PubSub {
+func GetPulsar() *PulsarPubSub {
 	once.Do(func() {
-		pulsarPubSub = NewPulsar(pkg.Conf.Pulsar.Host, pkg.Conf.Pulsar.Port)
+		pulsarPubSub = NewPulsar()
 	})
 
 	return pulsarPubSub
@@ -68,6 +55,22 @@ func GetPulsar() PubSub {
 //		return pubSub
 //	}
 //}
+
+func (p *PulsarPubSub) Initialize(host string, port int32) *PulsarPubSub {
+	// Instantiate a PubSub client
+	client, err := pulsar.NewClient(pulsar.ClientOptions{
+
+		URL: fmt.Sprintf("pulsar://%s:%d", host, port),
+	})
+
+	if err != nil {
+		pkg.GetLogger().Fatal(err)
+	}
+	p.client = client
+	p.consumers = make(map[string]pulsar.Consumer)
+	p.producers = make(map[string]pulsar.Producer)
+	return p
+}
 
 func (p *PulsarPubSub) CreateProducer(topic string) error {
 	producer, err := p.client.CreateProducer(pulsar.ProducerOptions{

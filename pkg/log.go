@@ -2,20 +2,45 @@ package pkg
 
 import (
 	"github.com/sirupsen/logrus"
+	"log"
 	"os"
+	"sync"
 )
 
-var Logger *logrus.Logger
+var (
+	logOnce sync.Once
+	logInst *Log
+)
 
-func InitLog() {
-	Logger = logrus.New()
+type Log struct {
+	*logrus.Logger
+}
 
-	Logger.SetFormatter(&logrus.TextFormatter{
+func NewLog() *Log {
+	return &Log{}
+}
+
+func GetLogger() *Log {
+	logOnce.Do(func() {
+		logInst = NewLog()
+	})
+	return logInst
+}
+
+func (l *Log) Initialize(level string) {
+	l.Logger = logrus.New()
+
+	l.Logger.SetFormatter(&logrus.TextFormatter{
 		//DisableColors: true,
 		FullTimestamp: true,
 	})
 
-	Logger.SetOutput(os.Stdout)
+	l.Logger.SetOutput(os.Stdout)
 
-	Logger.SetLevel(logrus.DebugLevel)
+	lev, err := logrus.ParseLevel(level)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	l.Logger.SetLevel(lev)
 }

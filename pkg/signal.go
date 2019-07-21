@@ -14,11 +14,11 @@ func Wait() {
 
 	go func() {
 		sig := <-sigs
-		Logger.Debug(sig)
+		GetLogger().Debug(sig)
 		done <- true
 	}()
 
-	Logger.Debug("awaiting signal")
+	GetLogger().Debug("awaiting signal")
 	<-done
-	Logger.Debug("exiting")
+	GetLogger().Debug("exiting")
 }

@@ -21,7 +21,7 @@ var PulsarPS pubsub.PubSub
 func setup() {
 	rand.Seed(time.Now().Unix())
 	loadConfig()
-	pkg.InitLog()
+	pkg.Initialize()
 	rpc.InitGrpc(":5050")
 	time.Sleep(500 * time.Millisecond)
 	initGrpcClient(":5050")

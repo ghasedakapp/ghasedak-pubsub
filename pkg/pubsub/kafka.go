@@ -1,7 +1,6 @@
 package pubsub
 
 import (
-	"ghasedak-pubsub/pkg"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"sync"
 )
@@ -12,12 +11,8 @@ type KafkaPubSub struct {
 	producers map[string]*kafka.Producer
 }
 
-func NewKafka(host string, port int32) *KafkaPubSub {
-	return &KafkaPubSub{
-		host:      host,
-		consumers: make(map[string]*kafka.Consumer),
-		producers: make(map[string]*kafka.Producer),
-	}
+func NewKafka() *KafkaPubSub {
+	return &KafkaPubSub{}
 }
 
 var (
@@ -28,7 +23,7 @@ var (
 
 func GetKafka() *KafkaPubSub {
 	kafkaOnce.Do(func() {
-		kafkaPubSub = NewKafka(pkg.Conf.Kafka.Host, pkg.Conf.Kafka.Port)
+		kafkaPubSub = NewKafka()
 	})
 
 	return kafkaPubSub
@@ -49,6 +44,13 @@ func GetKafka() *KafkaPubSub {
 //		return pubSub
 //	}
 //}
+
+func (p *KafkaPubSub) Initialize(host string, port int32) *KafkaPubSub {
+	p.host = host
+	p.consumers = make(map[string]*kafka.Consumer)
+	p.producers = make(map[string]*kafka.Producer)
+	return p
+}
 
 func (p *KafkaPubSub) CreateProducer(topic string) error {
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{

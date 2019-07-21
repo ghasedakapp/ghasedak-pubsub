@@ -7,9 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	"sync"
 )
-
-var Conf ConfYaml
 
 var defaultConf = []byte(`
 grpc:
@@ -19,23 +18,46 @@ postgres:
   host: 127.0.0.1
   port: 5432
 
-pulsar:
-  host:127.0.0.1
-  port:6650
-
-kafka:
-  host:127.0.0.1
-  port:6650
-
 log:
   level: debug
 
+pubsub: kafka  #kafka/pulsar
+
+pulsar:
+  host: 127.0.0.1
+  port: 6650
+
+kafka:
+  host: 127.0.0.1
+  port: 6650
+
 `)
+
+var (
+	confOnce sync.Once
+	confInst *Config
+)
+
+type Config struct {
+	ConfYaml
+}
+
+func NewConfig() *Config {
+	return &Config{}
+}
+
+func GetConfig() *Config {
+	confOnce.Do(func() {
+		confInst = NewConfig()
+	})
+	return confInst
+}
 
 // ConfYaml is config structure.
 type ConfYaml struct {
 	GRPC     SectionGRPC     `yaml:"grpc"`
 	Postgres SectionPostgres `yaml:"postgres"`
+	PubSub   string          `yaml:"pubsub"`
 	Pulsar   SectionPulsar   `yaml:"pulsar"`
 	Kafka    SectionKafka    `yaml:"kafka"`
 	Log      SectionLog      `yaml:"log"`
@@ -70,7 +92,7 @@ type SectionLog struct {
 }
 
 // LoadConf load config from file and read in environment variables that match
-func loadConf(confPath string) (ConfYaml, error) {
+func (*Config) loadConf(confPath string) (ConfYaml, error) {
 	var conf ConfYaml
 
 	viper.SetConfigType("yaml")
@@ -113,6 +135,9 @@ func loadConf(confPath string) (ConfYaml, error) {
 	conf.Postgres.Host = viper.GetString("grpc.host")
 	conf.Postgres.Port = viper.GetInt32("grpc.port")
 
+	// PubSub
+	conf.PubSub = viper.GetString("pubsub")
+
 	// Pulsar
 	conf.Pulsar.Host = viper.GetString("pulsar.host")
 	conf.Pulsar.Port = viper.GetInt32("pulsar.port")
@@ -127,9 +152,9 @@ func loadConf(confPath string) (ConfYaml, error) {
 	return conf, nil
 }
 
-func InitConfig(path string) {
+func (c *Config) Initialize(path string) {
 	var err error
-	Conf, err = loadConf(path)
+	c.ConfYaml, err = c.loadConf(path)
 	if err != nil {
 		log.Fatal(err)
 	}
