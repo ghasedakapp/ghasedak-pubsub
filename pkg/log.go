@@ -1,33 +1,18 @@
 package pkg
 
 import (
-	"github.com/sirupsen/logrus"
 	"log"
 	"os"
-	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
-var (
-	logOnce sync.Once
-	logInst *Log
-)
-
-type Log struct {
+type Logger struct {
 	*logrus.Logger
 }
 
-func NewLog() *Log {
-	return &Log{}
-}
-
-func GetLogger() *Log {
-	logOnce.Do(func() {
-		logInst = NewLog()
-	})
-	return logInst
-}
-
-func (l *Log) Initialize(level string) {
+func NewLog(level string) *Logger {
+	l := &Logger{}
 	l.Logger = logrus.New()
 
 	l.Logger.SetFormatter(&logrus.TextFormatter{
@@ -43,4 +28,6 @@ func (l *Log) Initialize(level string) {
 	}
 
 	l.Logger.SetLevel(lev)
+
+	return l
 }

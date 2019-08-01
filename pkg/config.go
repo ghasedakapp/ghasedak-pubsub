@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-	"sync"
 )
 
 var defaultConf = []byte(`
@@ -33,34 +32,28 @@ kafka:
 
 `)
 
-var (
-	confOnce sync.Once
-	confInst *Config
-)
-
 type Config struct {
 	ConfYaml
 }
 
-func NewConfig() *Config {
-	return &Config{}
-}
-
-func GetConfig() *Config {
-	confOnce.Do(func() {
-		confInst = NewConfig()
-	})
-	return confInst
+func NewConfig(path string) *Config {
+	var err error
+	var c Config
+	c.ConfYaml, err = c.loadConf(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &c
 }
 
 // ConfYaml is config structure.
 type ConfYaml struct {
-	GRPC     SectionGRPC     `yaml:"grpc"`
-	Postgres SectionPostgres `yaml:"postgres"`
-	PubSub   string          `yaml:"pubsub"`
-	Pulsar   SectionPulsar   `yaml:"pulsar"`
-	Kafka    SectionKafka    `yaml:"kafka"`
-	Log      SectionLog      `yaml:"log"`
+	GRPC       SectionGRPC     `yaml:"grpc"`
+	Postgres   SectionPostgres `yaml:"postgres"`
+	PubSubType string          `yaml:"pubsub"`
+	Pulsar     SectionPulsar   `yaml:"pulsar"`
+	Kafka      SectionKafka    `yaml:"kafka"`
+	Log        SectionLog      `yaml:"log"`
 }
 
 // SectionGRPC is sub section of config.
@@ -136,7 +129,7 @@ func (*Config) loadConf(confPath string) (ConfYaml, error) {
 	conf.Postgres.Port = viper.GetInt32("grpc.port")
 
 	// PubSub
-	conf.PubSub = viper.GetString("pubsub")
+	conf.PubSubType = viper.GetString("pubsub")
 
 	// Pulsar
 	conf.Pulsar.Host = viper.GetString("pulsar.host")
@@ -150,12 +143,4 @@ func (*Config) loadConf(confPath string) (ConfYaml, error) {
 	conf.Log.Level = viper.GetString("log.level")
 
 	return conf, nil
-}
-
-func (c *Config) Initialize(path string) {
-	var err error
-	c.ConfYaml, err = c.loadConf(path)
-	if err != nil {
-		log.Fatal(err)
-	}
 }

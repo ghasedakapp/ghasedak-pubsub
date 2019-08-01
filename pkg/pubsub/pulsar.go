@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"ghasedak-pubsub/pkg"
 	"github.com/apache/pulsar/pulsar-client-go/pulsar"
-	"sync"
 )
 
 type PulsarPubSub struct {
+	log       *pkg.Logger
 	client    pulsar.Client
 	consumers map[string]pulsar.Consumer
 	producers map[string]pulsar.Producer
@@ -22,41 +22,8 @@ func (pm *PulsarMessageId) Serialize() []byte {
 	return pm.id
 }
 
-func NewPulsar() *PulsarPubSub {
-	return &PulsarPubSub{}
-}
-
-var (
-	once sync.Once
-
-	pulsarPubSub *PulsarPubSub
-)
-
-func GetPulsar() *PulsarPubSub {
-	once.Do(func() {
-		pulsarPubSub = NewPulsar()
-	})
-
-	return pulsarPubSub
-}
-
-//
-//var pubSub *PubSub
-//
-///**
-//Get singletone pubsub object
-//*/
-//func GetPubSub() *PubSub {
-//	if pubSub == nil {
-//		p := NewPulsar(Conf.Pulsar.Host, Conf.Pulsar.Port)
-//		pubSub = &p
-//		return pubSub
-//	} else {
-//		return pubSub
-//	}
-//}
-
-func (p *PulsarPubSub) Initialize(host string, port int32) *PulsarPubSub {
+func NewPulsar(log *pkg.Logger, host string, port int32) *PulsarPubSub {
+	p := &PulsarPubSub{log: log}
 	// Instantiate a PubSub client
 	client, err := pulsar.NewClient(pulsar.ClientOptions{
 
@@ -64,7 +31,7 @@ func (p *PulsarPubSub) Initialize(host string, port int32) *PulsarPubSub {
 	})
 
 	if err != nil {
-		pkg.GetLogger().Fatal(err)
+		log.Fatal(err)
 	}
 	p.client = client
 	p.consumers = make(map[string]pulsar.Consumer)

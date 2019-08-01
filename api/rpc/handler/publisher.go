@@ -3,14 +3,21 @@ package handler
 import (
 	"context"
 	pb "ghasedak-pubsub/api/proto/src"
-	"ghasedak-pubsub/pkg/pubsub"
+	pubsub2 "ghasedak-pubsub/internal/pubsub"
 )
 
-type PublisherServer struct{}
+type PublisherServer struct {
+	pubsub *pubsub2.Adapter
+}
+
+func NewPublisherServer(pbAdapter *pubsub2.Adapter) *PublisherServer {
+	return &PublisherServer{
+		pubsub: pbAdapter,
+	}
+}
 
 func (p *PublisherServer) CreateTopic(ctx context.Context, req *pb.Topic) (*pb.Topic, error) {
-	pulsarClient := pubsub.GetKafka()
-	err := pulsarClient.CreateProducer(req.Name)
+	err := p.pubsub.CreateProducer(req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -18,10 +25,9 @@ func (p *PublisherServer) CreateTopic(ctx context.Context, req *pb.Topic) (*pb.T
 }
 
 func (p *PublisherServer) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
-	pulsarClient := pubsub.GetKafka()
 	var ids []*pb.MessageId
 	for _, m := range req.Messages {
-		_, err := pulsarClient.Publish(req.Topic, m.Data)
+		_, err := p.pubsub.Publish(req.Topic, m.Data)
 		if err != nil {
 			return nil, err
 		}

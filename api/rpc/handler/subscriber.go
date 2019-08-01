@@ -3,15 +3,22 @@ package handler
 import (
 	"context"
 	pb "ghasedak-pubsub/api/proto/src"
-	"ghasedak-pubsub/pkg/pubsub"
+	pubsub2 "ghasedak-pubsub/internal/pubsub"
 	google_protobuf2 "github.com/golang/protobuf/ptypes/empty"
 )
 
-type SubscriberServer struct{}
+type SubscriberServer struct {
+	pubsub *pubsub2.Adapter
+}
+
+func NewSubscriberServer(pubsub *pubsub2.Adapter) *SubscriberServer {
+	return &SubscriberServer{
+		pubsub: pubsub,
+	}
+}
 
 func (s *SubscriberServer) CreateSubscription(ctx context.Context, req *pb.Subscription) (*pb.Subscription, error) {
-	client := pubsub.GetKafka()
-	err := client.Subscribe(req.Name, []string{req.Topic})
+	err := s.pubsub.Subscribe(req.Name, []string{req.Topic})
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +30,7 @@ func (s *SubscriberServer) Acknowledge(ctx context.Context, req *pb.AcknowledgeR
 }
 
 func (s *SubscriberServer) Pull(ctx context.Context, req *pb.PullRequest) (*pb.PullResponse, error) {
-	pulsarClient := pubsub.GetKafka()
-	r, err := pulsarClient.Receive(req.Subscription)
+	r, err := s.pubsub.Receive(req.Subscription)
 	if err != nil {
 		return nil, err
 	}

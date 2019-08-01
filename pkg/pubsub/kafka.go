@@ -1,54 +1,24 @@
 package pubsub
 
 import (
+	"ghasedak-pubsub/pkg"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"sync"
 )
 
 type KafkaPubSub struct {
+	log       *pkg.Logger
 	host      string
 	consumers map[string]*kafka.Consumer
 	producers map[string]*kafka.Producer
 }
 
-func NewKafka() *KafkaPubSub {
-	return &KafkaPubSub{}
-}
-
-var (
-	kafkaOnce sync.Once
-
-	kafkaPubSub *KafkaPubSub
-)
-
-func GetKafka() *KafkaPubSub {
-	kafkaOnce.Do(func() {
-		kafkaPubSub = NewKafka()
-	})
-
-	return kafkaPubSub
-}
-
-//
-//var pubSub *PubSub
-//
-///**
-//Get singletone pubsub object
-//*/
-//func GetPubSub() *PubSub {
-//	if pubSub == nil {
-//		p := NewPulsar(Conf.Pulsar.Host, Conf.Pulsar.Port)
-//		pubSub = &p
-//		return pubSub
-//	} else {
-//		return pubSub
-//	}
-//}
-
-func (p *KafkaPubSub) Initialize(host string, port int32) *KafkaPubSub {
-	p.host = host
-	p.consumers = make(map[string]*kafka.Consumer)
-	p.producers = make(map[string]*kafka.Producer)
+func NewKafka(log *pkg.Logger, host string, port int32) *KafkaPubSub {
+	p := &KafkaPubSub{
+		log:       log,
+		host:      host,
+		consumers: make(map[string]*kafka.Consumer),
+		producers: make(map[string]*kafka.Producer),
+	}
 	return p
 }
 

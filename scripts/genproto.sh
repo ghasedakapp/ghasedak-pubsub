@@ -28,8 +28,8 @@ GRPC_GATEWAY_SHA="92583770e3f01b09a0d3e9bdf64321d8bebd48f2"
 SCHWAG_SHA="b7d0fc9aadaaae3d61aaadfc12e4a2f945514912"
 
 # set up self-contained GOPATH for building
-export GOPATH=${PWD}/build
-export GOBIN=${PWD}/build/bin
+export GOPATH=${PWD}/build_
+export GOBIN=${PWD}/build_/bin
 export PATH="${GOBIN}:${PATH}"
 
 GOGOPROTO_ROOT="${GOPATH}/src/github.com/gogo/protobuf"

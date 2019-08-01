@@ -3,33 +3,21 @@ package pubsub
 import (
 	"ghasedak-pubsub/pkg"
 	"ghasedak-pubsub/pkg/pubsub"
-	"sync"
-)
-
-var (
-	adapterOnce sync.Once
-	adapterInst *Adapter
 )
 
 type Adapter struct {
+	log *pkg.Logger
 	pubsub.PubSub
 }
 
-func NewAdapter() *Adapter {
-	return &Adapter{}
-}
-
-func GetAdapter() *Adapter {
-	adapterOnce.Do(func() {
-		adapterInst = NewAdapter()
-	})
-	return adapterInst
-}
-
-func (p *Adapter) Initialize(kafkaHost string, kafkaPort int32, pulsarHost string, pulsarPort int32) {
-	if pkg.GetConfig().PubSub == "kafka" {
-		p.PubSub = pubsub.GetKafka().Initialize(kafkaHost, kafkaPort)
-	} else if pkg.GetConfig().PubSub == "pulsar" {
-		p.PubSub = pubsub.GetPulsar().Initialize(pulsarHost, pulsarPort)
+func NewAdapter(log *pkg.Logger, pubsubType string, kafkaHost string, kafkaPort int32, pulsarHost string, pulsarPort int32) *Adapter {
+	p := &Adapter{
+		log: log,
 	}
+	if pubsubType == "kafka" {
+		p.PubSub = pubsub.NewKafka(log, kafkaHost, kafkaPort)
+	} else if pubsubType == "pulsar" {
+		p.PubSub = pubsub.NewPulsar(log, pulsarHost, pulsarPort)
+	}
+	return p
 }

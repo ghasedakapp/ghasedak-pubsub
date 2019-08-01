@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,11 +15,11 @@ func Wait() {
 
 	go func() {
 		sig := <-sigs
-		GetLogger().Debug(sig)
+		fmt.Println(sig)
 		done <- true
 	}()
 
-	GetLogger().Debug("awaiting signal")
+	fmt.Println("awaiting signal")
 	<-done
-	GetLogger().Debug("exiting")
+	fmt.Println("exiting")
 }

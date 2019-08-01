@@ -7,14 +7,16 @@ import (
 )
 
 func initialize() {
-	pkg.GetConfig().Initialize("")
-	pkg.GetLogger().Initialize(pkg.GetConfig().Log.Level)
-	rpc.NewGrpc().Initialize(":5050")
-	pubsub.GetAdapter().Initialize(
-		pkg.GetConfig().Kafka.Host,
-		pkg.GetConfig().Kafka.Port,
-		pkg.GetConfig().Pulsar.Host,
-		pkg.GetConfig().Pulsar.Port)
+	conf := pkg.NewConfig("")
+	logger := pkg.NewLog(conf.Log.Level)
+	pubsubAdapter := pubsub.NewAdapter(
+		logger,
+		conf.PubSubType,
+		conf.Kafka.Host,
+		conf.Kafka.Port,
+		conf.Pulsar.Host,
+		conf.Pulsar.Port)
+	rpc.NewGrpc(logger, pubsubAdapter, ":5050")
 }
 
 func Main() {
